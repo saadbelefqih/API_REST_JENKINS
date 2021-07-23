@@ -22,7 +22,6 @@ public class ModuleControleur {
 		this.service = service;
 	}
 	
-	
 	@GetMapping("/modules")
 	public List<Module> getModules() {
 		return service.getModules();
