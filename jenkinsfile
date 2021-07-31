@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Etape 1 : Git Checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'git_credentials', url: 'https://github.com/saadbelefqih/API_REST_JENKINS.git'
+            }
+        }
+        stage('ETAPE 2 : MAVEN Build') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+        stage('ETAPE 3 : Test Unitaire') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('ETAPE 4 : Package App') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('ETAPE 5 : Build Docker Image') {
+            steps {
+                sh 'docker build -t saadbelefqih/apirest:0.0.1'
+            }
+        }
+        stage('ETAPE 6 : Push in dockerHub') {
+            steps {
+                    withCredentials([string(credentialsId: 'dockerhubpass', variable: 'dockerCredentialsVar')]) {
+                        sh 'docker login -u saadbelefqih -p ${dockerCredentialsVar}'
+            }
+            sh 'docker push saadbelefqih/apirest:0.0.1'
+                
+            }
+        }
+    }
+    post {
+        failure{
+            emailext body:'Le Projet $PROJECT_NAME \n Le build échoué: N°: $BUILD_NUMBER \n Le détail :  $BUILD_URL',
+    		recipientProviders:[requestor()],
+    		subject:'Échec de l intégration de Jenkins  $PROJECT_NAME',
+    		to:'saad.belefqih@um5r.ac.ma'
+        }
+        success {
+            sh 'java -jar /var/lib/jenkins/workspace/ApiRest_Pipeline/target/demo-0.0.1-SNAPSHOT.jar' 
+        }
+    }
+}
