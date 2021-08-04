@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+
+  docker-mysql:
+    container_name: docker-mysql
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=coursspringboot_db
+      - MYSQL_PASSWORD=root
+    volumes:
+      - /home/pc/vlmDocker/vlmMysql:/var/lib/mysql
+    ports:
+      - 6033:3306
+    networks:
+      - apirest_cours_mysql
+
+  myapp-apirest:
+    image: saadbelefqih/api_rest_cours:01
+    restart: on-failure
+    depends_on:
+      - docker-mysql
+    ports:
+      - 8085:8080
+    environment:
+      WAIT_HOSTS: mysql:3306
+    networks:
+      - apirest_cours_mysql
+networks:
+  apirest_cours_mysql:
