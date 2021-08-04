@@ -26,7 +26,6 @@ public class Cours {
 	
 	public Cours() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
